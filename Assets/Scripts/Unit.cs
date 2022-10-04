@@ -1,10 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 using System;
 
-public class Unit : MonoBehaviour
+public class Unit : NetworkBehaviour
 {
+    // Network Variables:
+
+    private NetworkVariable<int> randomNumber = new NetworkVariable<int>();
+
     private const int ACTION_POINTS_MAX = 6;
 
     public static event EventHandler OnAnyActionPointsChanged;
@@ -34,6 +39,8 @@ public class Unit : MonoBehaviour
         healthSystem.OnDead += HealthSystem_OnDead;
 
         OnAnyUnitSpawn?.Invoke(this, EventArgs.Empty);
+
+       
     }
 
     // Update is called once per frame
