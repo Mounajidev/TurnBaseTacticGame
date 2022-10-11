@@ -1,14 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
+using Fusion;
 using System;
 
-public class Unit : NetworkBehaviour
+public class Unit : NetworkBehaviour, IPlayerLeft
 {
-    // Network Variables:
-
-    private NetworkVariable<int> randomNumber = new NetworkVariable<int>();
 
     private const int ACTION_POINTS_MAX = 6;
 
@@ -23,10 +20,29 @@ public class Unit : NetworkBehaviour
     private BaseAction[] baseActionArray;
     private int actionPoints = ACTION_POINTS_MAX;
 
+    // network variables
+    public static Unit Local { get; set; }
+
+    public override void Spawned()
+    {
+        if ( Object.HasInputAuthority)
+        {
+            Debug.Log("You Entered on the Battlefield !");
+            Local = this;
+        }
+        else
+        {
+            Debug.Log("Enemy Entered the Battlefield");
+            isEnemy = true;
+        }
+    }
+
     private void Awake()
     {
         healthSystem = GetComponent<HealthSystem>();
         baseActionArray = GetComponents<BaseAction>();
+
+        
     }
 
     public void Start()
@@ -40,11 +56,9 @@ public class Unit : NetworkBehaviour
 
         OnAnyUnitSpawn?.Invoke(this, EventArgs.Empty);
 
-       
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void FixedUpdateNetwork()
     {
         
         GridPosition newGridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
@@ -160,6 +174,14 @@ public class Unit : NetworkBehaviour
     public float GetHealthNormalized()
     {
         return healthSystem.GetHealthNormalized();
+    }
+
+    // Network functions
+    public void PlayerLeft(PlayerRef player)
+    {
+        if (player == Object.HasStateAuthority){
+            Runner.Despawn(Object);
+        }
     }
 }
 

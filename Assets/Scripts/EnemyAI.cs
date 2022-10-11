@@ -28,37 +28,38 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        
-        if(TurnSystem.Instance.IsPlayerTurn())
-        {
-            return;
-        }
+        //  ENEMY IA ACTIONS COMMENTED FOR MULTIPLAYER TEST << ---------------------------------
 
-        switch ( state)
-        {
-            case State.WaitingForEnemyTurn:
-                break;
-                case State.TakingTurn:
-                timer -= Time.deltaTime;
-                if (timer <= 0f)
-                {
+        //if(TurnSystem.Instance.IsPlayerTurn())
+        //{
+        //    return;
+        //}
 
-                    if (TryTakeEnemyAIAction(SetStateTakingTurn))
-                    {
-                        state = State.Busy;
-                    }
-                    else
-                    {
-                        // No more enemies have actions they can take, end enemy turn
-                        TurnSystem.Instance.NextTurn();
-                    }
+        //switch ( state)
+        //{
+        //    case State.WaitingForEnemyTurn:
+        //        break;
+        //        case State.TakingTurn:
+        //        timer -= Time.deltaTime;
+        //        if (timer <= 0f)
+        //        {
+
+        //            if (TryTakeEnemyAIAction(SetStateTakingTurn))
+        //            {
+        //                state = State.Busy;
+        //            }
+        //            else
+        //            {
+        //                // No more enemies have actions they can take, end enemy turn
+        //                TurnSystem.Instance.NextTurn();
+        //            }
                     
                     
-                }
-                break;
-            case State.Busy:
-                break;
-        } 
+        //        }
+        //        break;
+        //    case State.Busy:
+        //        break;
+        //} 
 
     }
 

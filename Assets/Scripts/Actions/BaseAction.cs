@@ -2,8 +2,9 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
-public abstract class BaseAction : MonoBehaviour
+public abstract class BaseAction : NetworkBehaviour
 {
     public static event EventHandler OnAnyActionStarted;
     public static event EventHandler OnAnyActionCompleted;

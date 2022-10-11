@@ -76,7 +76,7 @@ public class UnitManager : MonoBehaviour
 
     public List<Unit> GetFriendlyUnitList()
     {
-        return enemyUnitList;
+        return friendlyUnitList;
     }
 
     public List<Unit> GetEnemyUnitList()

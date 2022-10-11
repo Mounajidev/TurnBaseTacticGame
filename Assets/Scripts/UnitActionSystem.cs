@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Fusion;
 
-public class UnitActionSystem : MonoBehaviour
+public class UnitActionSystem : NetworkBehaviour
 {
     public static UnitActionSystem Instance { get; private set; }
 
@@ -19,6 +20,10 @@ public class UnitActionSystem : MonoBehaviour
     private BaseAction selectedAction;
 
     private bool isBusy;
+
+    // Networkk implementation
+
+    [Networked] public NetworkButtons ButtonsPrevious { get; set; }
 
     private void Awake()
     {
@@ -36,31 +41,34 @@ public class UnitActionSystem : MonoBehaviour
         SetSelectedUnit(selectedUnit);
     }
 
-    private void Update()
+    public override void FixedUpdateNetwork()
     {
-
+        
         if (isBusy)
         {
+            Debug.Log("IsBusy");
             return;
         }
 
         if ( !TurnSystem.Instance.IsPlayerTurn())
         {
+            Debug.Log("Is Player Turn");
             return;
         }
 
         if (EventSystem.current.IsPointerOverGameObject())
         {
+            
             return;
         }
 
         if (TryHandleUnitSelection())
         {
-
-           return;
+            Debug.Log("Try HandleUnitSelection");
+            return;
 
         }
-
+        
         HandleSelectedAction();
 
         
@@ -70,6 +78,7 @@ public class UnitActionSystem : MonoBehaviour
     {
         if (InputManager.Instance.IsMouseButtonDownThisFrame())
         {
+            Debug.Log(" handle selected action");
             GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition(MouseWorld.GetPosition());
 
             if (!selectedAction.IsValidActionGridPosition(mouseGridPosition))
@@ -109,6 +118,7 @@ public class UnitActionSystem : MonoBehaviour
     {
         if (InputManager.Instance.IsMouseButtonDownThisFrame())
         {
+            Debug.Log("Button Clicked");
             Ray ray = Camera.main.ScreenPointToRay(InputManager.Instance.GetMouseScreenPosition());
             if (Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, unitLayerMask))
             {

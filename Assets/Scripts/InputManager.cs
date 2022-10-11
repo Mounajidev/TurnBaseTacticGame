@@ -10,6 +10,9 @@ public class InputManager : MonoBehaviour
 
     private PlayerInputActions playerInputActions;
 
+    //Network implementation
+    private bool _mouseButton0;
+
     private void Awake()
     {
         if (Instance != null)
@@ -111,4 +114,17 @@ public class InputManager : MonoBehaviour
         return zoomAmount;
 #endif
     }
+
+    //public NetworkInputData GetNetworkInput()
+    //{
+        
+    //NetworkInputData networkInputData = new NetworkInputData();
+        
+    //    if (_mouseButton0)
+    //      networkInputData.buttons |= NetworkInputData.MOUSEBUTTON1;
+    //    _mouseButton0 = false;
+
+    //    return networkInputData;
+    //}
+    
 }

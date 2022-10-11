@@ -2,9 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
-public class GrenadeProjectile : MonoBehaviour
+public class GrenadeProjectile : NetworkBehaviour
 {
+    [Networked] private TickTimer life { get; set; }
+
     public static event EventHandler OnAnyGrenadeExploded;
 
     [SerializeField] private Transform grenadeExplodeVfxPrefab;
@@ -16,48 +19,59 @@ public class GrenadeProjectile : MonoBehaviour
     private float totalDistance;
     private Vector3 positionXZ;
 
-    private void Update()
+    public void Init()
     {
-        Vector3 moveDir = (targetPosition - positionXZ).normalized;
+        life = TickTimer.CreateFromSeconds(Runner, 5.0f);
+    }
 
-        float moveSpeed = 15f;
-        positionXZ +=  moveDir * moveSpeed * Time.deltaTime;
-
-        float distance = Vector3.Distance(positionXZ, targetPosition);
-        float distanceNormalized = 1 - distance / totalDistance;
-
-        float maxHeight = totalDistance / 3f;
-        float positionY = arcYAnimationCurve.Evaluate(distanceNormalized) * maxHeight;
-        transform.position = new Vector3(positionXZ.x, positionY, positionXZ.z);
-
-        float reachedTargetDistance = 0.2f;
-        if ( Vector3.Distance(positionXZ, targetPosition) < reachedTargetDistance)
+    public override void FixedUpdateNetwork()
+    {
+        if (life.Expired(Runner))
+            Runner.Despawn(Object);
+        else
         {
-            float damageRadius = 2f;
-            Collider[] colliderArray = Physics.OverlapSphere(targetPosition, damageRadius);
 
-            foreach ( Collider collider in colliderArray)
+            Vector3 moveDir = (targetPosition - positionXZ).normalized;
+
+            float moveSpeed = 15f;
+            positionXZ += moveDir * moveSpeed * Runner.DeltaTime;
+
+            float distance = Vector3.Distance(positionXZ, targetPosition);
+            float distanceNormalized = 1 - distance / totalDistance;
+
+            float maxHeight = totalDistance / 3f;
+            float positionY = arcYAnimationCurve.Evaluate(distanceNormalized) * maxHeight;
+            transform.position = new Vector3(positionXZ.x, positionY, positionXZ.z);
+
+            float reachedTargetDistance = 0.2f;
+            if (Vector3.Distance(positionXZ, targetPosition) < reachedTargetDistance)
             {
-                if (collider.TryGetComponent<Unit>(out Unit targetUnit))
+                float damageRadius = 2f;
+                Collider[] colliderArray = Physics.OverlapSphere(targetPosition, damageRadius);
+
+                foreach (Collider collider in colliderArray)
                 {
-                    Debug.Log("unit found");
-                    targetUnit.Damage(30);
+                    if (collider.TryGetComponent<Unit>(out Unit targetUnit))
+                    {
+                        Debug.Log("unit found");
+                        targetUnit.Damage(30);
+                    }
+
+                    if (collider.TryGetComponent<DestructibleCrate>(out DestructibleCrate destructibleCrate))
+                    {
+                        Debug.Log("destructible crate found");
+                        destructibleCrate.Damage();
+                    }
                 }
 
-                if (collider.TryGetComponent<DestructibleCrate>(out DestructibleCrate destructibleCrate))
-                {
-                    Debug.Log("destructible crate found");
-                    destructibleCrate.Damage();
-                }
+                OnAnyGrenadeExploded?.Invoke(this, EventArgs.Empty);
+                trailRenderer.transform.parent = null;
+
+                Instantiate(grenadeExplodeVfxPrefab, targetPosition + Vector3.up * 1f, Quaternion.identity);
+                Destroy(gameObject);
+
+                onGrenadeBehaviorComplete();
             }
-
-            OnAnyGrenadeExploded?.Invoke(this, EventArgs.Empty);
-            trailRenderer.transform.parent = null;
-
-            Instantiate(grenadeExplodeVfxPrefab, targetPosition + Vector3.up * 1f, Quaternion.identity);
-            Destroy(gameObject);
-
-            onGrenadeBehaviorComplete();
         }
     }
 
