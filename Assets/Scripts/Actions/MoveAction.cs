@@ -2,6 +2,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
 public class MoveAction : BaseAction
 {
@@ -9,13 +10,18 @@ public class MoveAction : BaseAction
     public event EventHandler OnStartMoving;
     public event EventHandler OnStopMoving;
     
-    [SerializeField] private int maxMoveDistance = 4;
+    [SerializeField] private int maxMoveDistance = 1;
 
+    // Networked variables
     private List<Vector3> positionList;
-    private int currentPositionIndex;
-   
 
-    private void Update()
+    //[Networked] [Capacity(20)] [UnitySerializeField]
+    //private NetworkLinkedList<Vector3> positionList {  get; }
+    //= MakeInitializer(new Vector3[] {  });
+    private int currentPositionIndex { get; set; }
+
+
+    public override void FixedUpdateNetwork()
     {
         if (!isActive)
         {
@@ -26,14 +32,14 @@ public class MoveAction : BaseAction
         Vector3 moveDirection = (targetPosition - transform.position).normalized;
 
         float rotateSpeed = 10f;
-        transform.forward = Vector3.Lerp(transform.forward, moveDirection, Time.deltaTime * rotateSpeed);
+        transform.forward = Vector3.Lerp(transform.forward, moveDirection, Runner.DeltaTime * rotateSpeed);
 
         float stoppingDistance = .1f;
         if (Vector3.Distance(transform.position, targetPosition) > stoppingDistance)
         {
             
             float moveSpeed = 4f;
-            transform.position += moveDirection * moveSpeed * Time.deltaTime;
+            transform.position += moveDirection * moveSpeed * Runner.DeltaTime;
 
         }
         else
@@ -49,7 +55,8 @@ public class MoveAction : BaseAction
 
     }
 
-    public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public override void RPC_TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
         List<GridPosition> pathGridPositionList = Pathfinding.Instance.FindPath(unit.GetGridPosition(), gridPosition, out int pathLength);
 
@@ -62,7 +69,7 @@ public class MoveAction : BaseAction
         }
 
         OnStartMoving?.Invoke(this, EventArgs.Empty);
-        ActionStart(onActionComplete);
+        RPC_ActionStart(onActionComplete);
         
     }
 

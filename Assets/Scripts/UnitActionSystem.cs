@@ -25,34 +25,51 @@ public class UnitActionSystem : NetworkBehaviour
 
     [Networked] public NetworkButtons ButtonsPrevious { get; set; }
 
-    private void Awake()
+    // network implementation
+    public override void Spawned()
     {
-        if( Instance != null)
+        if (Instance != null)
         {
             Debug.LogError("There is more than one UnitActionSystem!" + transform + "-" + Instance);
             Destroy(gameObject);
             return;
         }
         Instance = this;
-    }
 
-    private void Start()
-    {
         SetSelectedUnit(selectedUnit);
     }
+
+
+    //private void Awake()
+    //{
+    //    if( Instance != null)
+    //    {
+    //        Debug.LogError("There is more than one UnitActionSystem!" + transform + "-" + Instance);
+    //        Destroy(gameObject);
+    //        return;
+    //    }
+    //    Instance = this;
+    //}
+
+    //private void Start()
+    //{
+    //    SetSelectedUnit(selectedUnit);
+    //}
+
+
 
     public override void FixedUpdateNetwork()
     {
         
         if (isBusy)
         {
-            Debug.Log("IsBusy");
+            //Debug.Log("IsBusy");
             return;
         }
 
         if ( !TurnSystem.Instance.IsPlayerTurn())
         {
-            Debug.Log("Is Player Turn");
+            
             return;
         }
 
@@ -92,7 +109,7 @@ public class UnitActionSystem : NetworkBehaviour
              }
             
              SetBusy();
-             selectedAction.TakeAction(mouseGridPosition, ClearBusy);
+             selectedAction.RPC_TakeAction(mouseGridPosition, ClearBusy);
 
              OnActionStarted?.Invoke(this, EventArgs.Empty);
 
@@ -128,12 +145,14 @@ public class UnitActionSystem : NetworkBehaviour
                     if ( unit == selectedUnit)
                     {
                         // Unit is already selected
+                        Debug.Log("Unit Already Selected");
                         return false;
                     }
 
                     if ( unit.IsEnemy())
                     {
                         // Clicked on an Enemy
+                        Debug.Log("Enemy Unit Clicked");
                         return false;
                     }
 

@@ -2,22 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Fusion;
 
-public class HealthSystem : MonoBehaviour
+public class HealthSystem : NetworkBehaviour
 {
 
     public event EventHandler OnDead;
     public event EventHandler OnDamaged;
 
-    [SerializeField] private int health = 100;
+    
+    [SerializeField] [Networked(OnChanged = nameof(UpdateHealthUI))] public int health { get; set; } = 100;
+    //[SerializeField] [Networked] public int health { get; set; } = 100;
+
     private int healthMax;
 
-    private void Awake()
+
+    public override void Spawned()
     {
         healthMax = health;
+        
     }
-
-    public void Damage (int damageAmount)
+    [Rpc]
+    public void RPC_Damage (int damageAmount)
     {
         health -= damageAmount;
 
@@ -45,4 +51,17 @@ public class HealthSystem : MonoBehaviour
     {
         return (float)health / healthMax;
     }
+
+    //network health ui update
+    public static void UpdateHealthUI(Changed<HealthSystem> changed)
+    {
+        changed.Behaviour.OnNetworkDamage();
+    }
+
+    private void OnNetworkDamage()
+    {
+        Debug.Log("UpdateHealthUI Network Event: " + OnDamaged);
+        OnDamaged?.Invoke(this, EventArgs.Empty);
+    }
+
 }

@@ -266,7 +266,7 @@ MonoBehaviour:
   ObjectInterest: 1
   DefaultInterestGroups: []
   DestroyWhenStateAuthorityLeaves: 0
-  AllowStateAuthorityOverride: 0
+  AllowStateAuthorityOverride: 1
   AoiPositionSource: {fileID: 0}
   Flags: 2305
   NetworkGuid:

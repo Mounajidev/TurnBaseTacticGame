@@ -10,17 +10,22 @@ public abstract class BaseAction : NetworkBehaviour
     public static event EventHandler OnAnyActionCompleted;
 
     protected Unit unit;
-    protected bool isActive;
+    [Networked] protected NetworkBool isActive { get; set; }
     protected Action onActionComplete;
 
-    protected virtual void Awake()
+    // network implementation
+    public override void Spawned()
     {
         unit = GetComponent<Unit>();
     }
 
     public abstract string GetActionName();
 
-    public abstract void TakeAction(GridPosition gridPosition, Action onActionComplete);
+    //public abstract void TakeAction(GridPosition gridPosition, Action onActionComplete);
+
+    //networked from above line
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public abstract void RPC_TakeAction(GridPosition gridPosition, Action onActionComplete);
 
     public virtual bool IsValidActionGridPosition(GridPosition gridPosition)
     {
@@ -29,20 +34,32 @@ public abstract class BaseAction : NetworkBehaviour
 
        
     }
-
+    
     public abstract List<GridPosition> GetValidActionGridPositionList();
 
     public virtual int GetActionPointsCost()
     {
         return 1;
     }
-    
-    protected void ActionStart(Action onActionComplete)
+
+    //protected void ActionStart(Action onActionComplete)
+    //{
+    //    isActive = true;
+    //    this.onActionComplete = onActionComplete;
+
+    //    OnAnyActionStarted?.Invoke(this, EventArgs.Empty);
+    //    Debug.Log("Action started by : " + Runner.LocalPlayer);
+    //}
+
+    // RPC converted the method above :
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    protected void RPC_ActionStart(Action onActionComplete)
     {
         isActive = true;
         this.onActionComplete = onActionComplete;
 
         OnAnyActionStarted?.Invoke(this, EventArgs.Empty);
+        Debug.Log("Action started by : " + RpcSources.InputAuthority);
     }
 
     protected void ActionComplete()
@@ -87,4 +104,6 @@ public abstract class BaseAction : NetworkBehaviour
     }
 
     public abstract EnemyAIAction GetEnemyAIAction(GridPosition gridPosition);
+
+  
 }

@@ -230,6 +230,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3082735eb4f056a498b4569e4021827b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
   actionPointsText: {fileID: 3024919257402377901}
   unit: {fileID: 7691117556666756846}
   healthBarImage: {fileID: 6578781584500315365}
@@ -734,7 +735,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7d9407849994d74995812da0c958ce4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
+  _interpolationDataSource: 0
+  _health: 100
 --- !u!114 &3876041743475015015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -817,10 +819,13 @@ MonoBehaviour:
   - {fileID: 3669951170636996691}
   - {fileID: 8514969071466138861}
   - {fileID: 6712521712660601407}
+  - {fileID: 5082156764105217628}
   - {fileID: -8659421019986390581}
   - {fileID: -799415773686683951}
   - {fileID: 2078993501714909224}
   - {fileID: -8911662460501330889}
+  - {fileID: 6693729859675814104}
+  - {fileID: 4009270592403074511}
   SimulationBehaviours: []
 --- !u!143 &8314735161079770439
 CharacterController:
@@ -1278,6 +1283,42 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 8622358456544241068}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8623382409394119736 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1316981293597076, guid: 2f3e27eecb190e44a9af50723c394274,
+    type: 3}
+  m_PrefabInstance: {fileID: 8622358456544241068}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6693729859675814104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8623382409394119736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 506319458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  Animator: {fileID: 8573877909087767540}
+  TotalWords: 1
+  SyncSettings: 79
+  FloatAccuracy:
+    _value: 0
+    _inverse: 0
+    _hash: -814817977
+  TimeAccuracy:
+    _value: 0
+    _inverse: 0
+    _hash: 1061325578
+  WeightAccuracy:
+    _value: 0
+    _inverse: 0
+    _hash: -814817977
+  StateHashes: 0000000095f5a874ed4ba015011cc384eadf4b79af37361b0a73d1a4905a1fc4a3e93af3
+  TriggerHashes: 00000000bad385b1905a1fc4
 --- !u!4 &8626789653368613612 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4580766925885248, guid: 2f3e27eecb190e44a9af50723c394274,

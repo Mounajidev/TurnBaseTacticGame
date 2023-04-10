@@ -2,12 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
 public class InteractAction : BaseAction
 {
     private int maxInteractDistance = 1;
 
-    private void Update()
+    public override void FixedUpdateNetwork()
     {
         if (!isActive)
         {
@@ -66,12 +67,13 @@ public class InteractAction : BaseAction
         return validGridPositionList;
     }
 
-    public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public override void RPC_TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
         IInteractable interactable = LevelGrid.Instance.GetInteractableAtGridPosition(gridPosition);
         interactable.Interact(OnInteractComplete);
         Debug.Log("Interact Action");
-        ActionStart(onActionComplete);
+        RPC_ActionStart(onActionComplete);
     }
 
     private void OnInteractComplete()

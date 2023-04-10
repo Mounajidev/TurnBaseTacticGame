@@ -14,6 +14,7 @@ public class Unit : NetworkBehaviour, IPlayerLeft
     public static event EventHandler OnAnyUnitDead;
 
     [SerializeField] private bool isEnemy;
+    //[SerializeField] private Material unitMat;
 
     private GridPosition gridPosition;
     private HealthSystem healthSystem;
@@ -25,15 +26,17 @@ public class Unit : NetworkBehaviour, IPlayerLeft
 
     public override void Spawned()
     {
-        if ( Object.HasInputAuthority)
+        if ( Object.HasInputAuthority )
         {
-            Debug.Log("You Entered on the Battlefield !");
+            Debug.Log("You Entered on the Battlefield !" + "input auth : " + Object.HasInputAuthority + "state Aut: " + Object.HasStateAuthority);
             Local = this;
+            this.Object.RequestStateAuthority();
         }
         else
         {
-            Debug.Log("Enemy Entered the Battlefield");
+            Debug.Log("Enemy Entered the Battlefield" + "input auth : " +  Object.HasInputAuthority + "state Aut: " + Object.HasStateAuthority );
             isEnemy = true;
+            
         }
     }
 
@@ -140,13 +143,23 @@ public class Unit : NetworkBehaviour, IPlayerLeft
 
     private void TurnSystem_OnTurnChanged(object sender, EventArgs e)
     {
-        if ((IsEnemy() && !TurnSystem.Instance.IsPlayerTurn()) ||
-                (!IsEnemy() && TurnSystem.Instance.IsPlayerTurn()))
+
+        Debug.Log("turn ctriggering from unit script");
+        if (Runner.IsSharedModeMasterClient)
         {
+            if ((IsEnemy() && !TurnSystem.Instance.IsPlayerTurn()) ||
+                    (!IsEnemy() && TurnSystem.Instance.IsPlayerTurn()))
+            {
 
-        actionPoints = ACTION_POINTS_MAX;
+                actionPoints = ACTION_POINTS_MAX;
 
-        OnAnyActionPointsChanged?.Invoke(this, EventArgs.Empty);
+                OnAnyActionPointsChanged?.Invoke(this, EventArgs.Empty);
+                Debug.Log("turn changed on server trigering:" + TurnSystem.Instance.IsPlayerTurn());
+            }
+        }
+        else
+        {
+            Debug.Log("turn changed but not on server:" + TurnSystem.Instance.IsPlayerTurn());
 
         }
     }
@@ -159,7 +172,7 @@ public class Unit : NetworkBehaviour, IPlayerLeft
     public void Damage(int damageAmount)
     {
         Debug.Log(healthSystem);
-        healthSystem.Damage(damageAmount);
+        healthSystem.RPC_Damage(damageAmount);
     }
 
     private void HealthSystem_OnDead(object sender, EventArgs e)

@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using Fusion;
 
-public class UnitWorldUI : MonoBehaviour
+public class UnitWorldUI : NetworkBehaviour
 {
     [SerializeField] private TextMeshProUGUI actionPointsText;
     [SerializeField] private Unit unit;
     [SerializeField] private Image healthBarImage;
     [SerializeField] private HealthSystem healthSystem;
 
-    private void Start()
+    public override void Spawned()
     {
 
         Unit.OnAnyActionPointsChanged += Unit_OnAnyActionPointsChanged;
@@ -34,11 +35,13 @@ public class UnitWorldUI : MonoBehaviour
 
     private void UpdateHealthBar()
     {
+        Debug.Log("Health" + healthSystem.GetHealthNormalized());
         healthBarImage.fillAmount = healthSystem.GetHealthNormalized();
     }
 
     private void HealthSystem_OnDamaged(object sender, EventArgs e)
     {
+        Debug.Log("OnDamage ! " + "from server ?  " + Runner.IsSharedModeMasterClient);
         UpdateHealthBar();
     }
 }

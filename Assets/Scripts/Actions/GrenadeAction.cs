@@ -2,14 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
 public class GrenadeAction : BaseAction
 {
-    [SerializeField] private Transform grenadeProjectilePrefab;
+    //[SerializeField] private Transform grenadeProjectilePrefab;
 
-    private int maxThrowDistance = 7;
+    //Network implementation
+    [SerializeField] private NetworkPrefabRef grenadeProjectilePrefab;
 
-    private void Update()
+    private int maxThrowDistance = 4;
+
+    public override void FixedUpdateNetwork()
     {
         if (!isActive)
         {
@@ -69,13 +73,15 @@ public class GrenadeAction : BaseAction
         return validGridPositionList;
     }
 
-    public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public override void RPC_TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
-        Transform grenadeProjectileTransform = Instantiate(grenadeProjectilePrefab, unit.GetWorldPosition(), Quaternion.identity);
+        //Transform grenadeProjectileTransform = Instantiate(grenadeProjectilePrefab, unit.GetWorldPosition(), Quaternion.identity);
+        NetworkObject grenadeProjectileTransform = Runner.Spawn(grenadeProjectilePrefab, unit.GetWorldPosition(), Quaternion.identity);
         GrenadeProjectile grenadeProjectile = grenadeProjectileTransform.GetComponent<GrenadeProjectile>();
         grenadeProjectile.Setup(gridPosition , OnGrenadeBehaviorComplete);
 
-        ActionStart(onActionComplete);
+        RPC_ActionStart(onActionComplete);
     }
 
     private void OnGrenadeBehaviorComplete()

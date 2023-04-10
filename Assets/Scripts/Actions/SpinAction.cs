@@ -2,6 +2,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
 public class SpinAction : BaseAction
 {
@@ -9,7 +10,7 @@ public class SpinAction : BaseAction
     private float totalSpinAmount;
 
 
-    private void Update()
+    public override void FixedUpdateNetwork()
     {
         if (!isActive)
         {
@@ -27,11 +28,20 @@ public class SpinAction : BaseAction
 
     }
 
-    public override void TakeAction(GridPosition gridPosition, Action onActionComplete) 
+    //public override void TakeAction(GridPosition gridPosition, Action onActionComplete) 
+    //{
+
+    //    totalSpinAmount = 0f;
+    //    ActionStart(onActionComplete);
+    //}
+
+    //Networked from aboce : RPC MEthod
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public override void RPC_TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
-        
+
         totalSpinAmount = 0f;
-        ActionStart(onActionComplete);
+        RPC_ActionStart(onActionComplete);
     }
 
     public override string GetActionName()

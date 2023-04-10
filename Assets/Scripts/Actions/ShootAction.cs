@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
 public class ShootAction : BaseAction
 {
@@ -26,19 +27,19 @@ public class ShootAction : BaseAction
 
     private State state;
     private float totalSpinAmount;
-    private int maxShootDistance = 5;
+    private int maxShootDistance = 4;
     private float stateTimer;
     private Unit targetUnit;
     private bool canShootBullet;
 
-    private void Update()
+    public override void FixedUpdateNetwork()
     {
         if (!isActive)
         {
             return;
         }
 
-        stateTimer -= Time.deltaTime;
+        stateTimer -= Runner.DeltaTime;
 
         switch (state)
         {
@@ -100,12 +101,13 @@ public class ShootAction : BaseAction
             shootingUnit = unit
         });
 
-        targetUnit.Damage(40);
+        targetUnit.Damage(15);
+        Debug.Log( targetUnit + "damaged by shoot action" + "has state ? :" + Object.HasStateAuthority);
     }
 
     public override string GetActionName()
     {
-        return "Shooot";
+        return "Shoot";
     }
 
     public override List<GridPosition> GetValidActionGridPositionList()
@@ -176,19 +178,36 @@ public class ShootAction : BaseAction
         return validGridPositionList;
     }
 
-    public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
+    //public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
+    //{
+
+    //    targetUnit = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
+
+
+    //    state = State.Aiming;
+    //    float aimingStateTime = 1f;
+    //    stateTimer = aimingStateTime;
+
+    //    canShootBullet = true;
+
+    //    ActionStart(onActionComplete);
+    //}
+
+    // Networked from Above / converted to RPC method
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public override void RPC_TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
 
         targetUnit = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
 
-        
+
         state = State.Aiming;
         float aimingStateTime = 1f;
         stateTimer = aimingStateTime;
 
         canShootBullet = true;
 
-        ActionStart(onActionComplete);
+        RPC_ActionStart(onActionComplete);
     }
 
     public Unit GetTargetUnit()

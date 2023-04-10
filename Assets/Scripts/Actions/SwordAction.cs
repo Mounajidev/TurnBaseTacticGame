@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
 public class SwordAction : BaseAction
 {
@@ -21,7 +22,7 @@ public class SwordAction : BaseAction
     private float stateTimer;
     private Unit targetUnit;
 
-    private void Update()
+    public override void FixedUpdateNetwork()
     {
         if (!isActive)
         {
@@ -57,7 +58,7 @@ public class SwordAction : BaseAction
                 state = State.SwingingSwordAfterHit;
                 float afterHitStateTime = 0.5f;
                 stateTimer = afterHitStateTime;
-                targetUnit.Damage(90);
+                targetUnit.Damage(30);
                 OnAnySwordHit?.Invoke(this, EventArgs.Empty);
                 break;
             case State.SwingingSwordAfterHit:
@@ -124,7 +125,8 @@ public class SwordAction : BaseAction
         return validGridPositionList;
     }
 
-    public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
+    //[Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.All)]
+    public override void RPC_TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
         targetUnit = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
 
@@ -134,7 +136,7 @@ public class SwordAction : BaseAction
 
         OnSwordActionStarted?.Invoke(this, EventArgs.Empty);
 
-        ActionStart(onActionComplete);
+        RPC_ActionStart(onActionComplete);
     }
 
     public int GetMaxSwordDistance()
